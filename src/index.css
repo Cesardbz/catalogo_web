@@ -1,0 +1,94 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700&display=swap');
+
+:root {
+  --font-heading: 'Outfit', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  --bg-color: #f8fafc;
+  --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f1f5f9 100%);
+  
+  --surface-blur: 16px;
+  --surface-bg: rgba(255, 255, 255, 0.65);
+  --surface-border: rgba(255, 255, 255, 0.8);
+
+  --accent-primary: #4f46e5;
+  --accent-secondary: #0ea5e9;
+  --accent-gradient: linear-gradient(90deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+
+  --text-main: #0f172a;
+  --text-muted: #475569;
+
+  --shadow-glow: 0 0 30px rgba(79, 70, 229, 0.2);
+  --shadow-card: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-color);
+  background-image: var(--bg-gradient);
+  color: var(--text-main);
+  min-height: 100vh;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: -20vh;
+  left: -20vw;
+  width: 60vw;
+  height: 60vw;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(79, 70, 229,0.1) 0%, rgba(255,255,255,0) 70%);
+  z-index: -1;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  bottom: -20vh;
+  right: -20vw;
+  width: 60vw;
+  height: 60vw;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(14, 165, 233,0.1) 0%, rgba(255,255,255,0) 70%);
+  z-index: -1;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+.glass-panel {
+  background: var(--surface-bg);
+  backdrop-filter: blur(var(--surface-blur));
+  -webkit-backdrop-filter: blur(var(--surface-blur));
+  border: 1px solid var(--surface-border);
+  border-radius: 24px;
+  box-shadow: var(--shadow-card);
+}
+
+.text-gradient {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
