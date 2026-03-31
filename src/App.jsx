@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
-import html2pdf from 'html2pdf.js'
+//import html2pdf from 'html2pdf.js'
 import './App.css'
 
 function App() {
@@ -54,10 +54,7 @@ function App() {
 
   const categories = useMemo(() => ['Todas', ...Object.keys(categoryTree)], [categoryTree]);
 
-  const subcategories = useMemo(() => {
-    if (selectedCategory === 'Todas') return [];
-    return categoryTree[selectedCategory] || [];
-  }, [selectedCategory, categoryTree]);
+
 
   const handleCategorySelect = (cat) => {
     setSelectedCategory(cat);
@@ -69,37 +66,6 @@ function App() {
 
   const toggleExpand = (cat) => {
     setExpandedCategories(prev => ({ ...prev, [cat]: !prev[cat] }));
-  };
-
-  const handleDownloadPDF = async () => {
-    const sidebarEl = document.querySelector('.sidebar');
-    const searchEl = document.querySelector('.topbar');
-    if (sidebarEl) sidebarEl.style.display = 'none';
-    if (searchEl) searchEl.style.display = 'none';
-
-    const element = document.getElementById('catalog-content');
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'visible';
-
-    const opt = {
-      margin: 0.5,
-      filename: 'catalogo-viveres.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true,
-        scrollY: 0,
-        windowWidth: document.documentElement.scrollWidth
-      },
-      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-    };
-
-    await html2pdf().set(opt).from(element).save();
-
-    if (sidebarEl) sidebarEl.style.display = '';
-    if (searchEl) searchEl.style.display = '';
-    document.body.style.overflow = originalOverflow;
   };
 
   const filteredProducts = useMemo(() => {
@@ -114,6 +80,118 @@ function App() {
       return matchesSearch && matchesCategory && matchesSubcategory;
     });
   }, [searchTerm, products, selectedCategory, selectedSubcategory]);
+
+const handleDownloadPDF = () => {
+  const dataToPrint = [...filteredProducts];
+  const fechaStr = new Date().toLocaleDateString();
+
+  // 1. Crear una ventana temporal
+  const printWindow = window.open('', '_blank');
+  
+  // 2. Inyectar el HTML y los Estilos (Diseño tipo Web)
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Catálogo de Productos</title>
+        <style>
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+          body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: white; }
+          
+          /* Banner Hero */
+          .hero {
+            background: #1c1917;
+            background-image: linear-gradient(120deg, rgba(28,25,23,0.95) 40%, rgba(249,115,22,0.4) 100%), 
+                              url('https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1200');
+            background-size: cover;
+            background-position: center;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 50px;
+            color: white;
+            -webkit-print-color-adjust: exact; /* Fuerza color en PDF */
+          }
+
+          .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+          }
+
+          .card {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            page-break-inside: avoid;
+          }
+
+          .card img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 15px;
+          }
+
+          .price {
+            color: #ea580c;
+            font-weight: bold;
+            font-size: 18px;
+          }
+
+          @media print {
+            .no-print { display: none; }
+            body { -webkit-print-color-adjust: exact; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="hero">
+          <div>
+            <h1 style="margin:0;">Catálogo de Víveres</h1>
+            <p>Fecha: ${fechaStr}</p>
+          </div>
+          <div style="text-align:right;">
+            <h2 style="margin:0; color: #fbbf24;">${dataToPrint.length}</h2>
+            <small>PRODUCTOS</small>
+          </div>
+        </div>
+
+        <div class="grid">
+          ${dataToPrint.map(p => `
+            <div class="card">
+              <img src="${p.image}" />
+              <div style="flex:1">
+                <div style="font-size: 10px; color: #ea580c; font-weight: bold; text-transform: uppercase;">${p.categoria}</div>
+                <h3 style="margin: 2px 0; font-size: 14px;">${p.producto}</h3>
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 10px;">
+                  <span style="font-size: 12px; color: #6b7280;">${p.marca}</span>
+                  <span class="price">S/ ${p.precio.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+
+        <script>
+          // Esperar a que las imágenes carguen antes de imprimir
+          window.onload = () => {
+            setTimeout(() => {
+              window.print();
+              window.close();
+            }, 1000);
+          };
+        </script>
+      </body>
+    </html>
+  `);
+
+  printWindow.document.close();
+};
 
   const totalByCategory = useMemo(() => {
     const counts = {};
